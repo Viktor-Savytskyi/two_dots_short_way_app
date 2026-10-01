@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/path_task_model.dart';
+import '../models/network/path_task_model.dart';
 
 class ApiException implements Exception {
   ApiException(this.message);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:two_dots_short_way_app/models/path_task_model.dart';
+import 'package:two_dots_short_way_app/models/network/path_task_model.dart';
 import 'package:two_dots_short_way_app/services/api_service.dart';
 import 'package:two_dots_short_way_app/utils/url_validator.dart';
 import 'package:two_dots_short_way_app/widgets/app_scaffold.dart';
@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openDetails({ required List<PathTask> tasks, required Uri url }) {
     Navigator.of(context).push(
         MaterialPageRoute(
-            builder: (context) => ProcessScreen(url: url, taskFeature: tasks,)
+            builder: (context) => ProcessScreen(url: url, tasks: tasks,)
         )
     );
   }

@@ -1,4 +1,5 @@
-import 'package:two_dots_short_way_app/models/grid_point_model.dart';
+import 'package:two_dots_short_way_app/models/network/grid_point_model.dart';
+import 'package:two_dots_short_way_app/models/ui/cell_type.dart';
 
 class PathTask {
   const PathTask({
@@ -12,6 +13,15 @@ class PathTask {
   final List<String> field;
   final GridPoint start;
   final GridPoint end;
+
+  int get size => field.length;
+
+  CellType typeOfCell({required int x, required int y}) {
+    if (start.x == x && start.y == y) return .start;
+    if (end.x == x && end.y == y) return .finish;
+    final symbol = field[y][x];
+    return symbol == 'X' ? .blocked : .empty;
+  }
 
   factory PathTask.fromJson(Map<String, dynamic> json) {
     return PathTask(
