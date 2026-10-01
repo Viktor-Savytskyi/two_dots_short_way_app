@@ -6,9 +6,7 @@ import 'package:two_dots_short_way_app/widgets/app_scaffold.dart';
 import 'process_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title});
-
-  final String title;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -37,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final input = _urlController.text.trim();
 
     if (!isValidUrl(input)) {
-      _showAlert('Invalid URL');
+      _showAlert(title: 'Invalid URL', message: 'Please enter valid url. example https://example.com');
       return;
     }
 
@@ -46,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final apiUri = Uri.parse(input);
       final tasks = await _apiService.fetchTasks(apiUri);
+      if (!mounted) return;
       for (var item in tasks)  {
         print('===== Task id: ${item.id}');
         print('task field: ${item.field}');
@@ -57,17 +56,19 @@ class _HomeScreenState extends State<HomeScreen> {
       _openDetails(tasks: tasks, url: apiUri);
     } catch (error) {
       if (!mounted) return;
-      _showAlert('Request failed $error'
-           );
+      _showAlert(
+          title: 'Error',
+          message: 'Request failed $error'
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _showAlert(String message) {
+  void _showAlert({required String title, required String message}) {
     showDialog(context: context, builder: (context) => AlertDialog(
-      title: Text(message),
-      content: Text("Please enter vallid url. example https://example.com"),
+      title: Text(title),
+      content: Text(message),
       actions: [
         TextButton(onPressed: () => Navigator.of(context).pop(),
             child: const Text('OK'))
@@ -79,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-        title: widget.title,
+        title: 'Home screen',
         body: Stack(
           children: [
             Column(

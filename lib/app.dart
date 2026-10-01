@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'TwoDotsShorWayApp',
       theme: ThemeData(
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
         appBarTheme: AppBarTheme(
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
           ),
         )
       ),
-      home: const HomeScreen(title: 'Home screen'),
+      home: const HomeScreen(),
     );
   }
 }

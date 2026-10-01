@@ -3,7 +3,7 @@ import 'package:two_dots_short_way_app/extensions/cell_type_colors.dart';
 import 'package:two_dots_short_way_app/models/ui/cell_type.dart';
 
 class GridCell extends StatelessWidget {
-GridCell({
+const GridCell({
   super.key,
   required this.x,
   required this.y,
@@ -23,7 +23,7 @@ final CellType type;
    ),
      child: Center(
        child: Text(
-         '($x, $y)',
+         '($x,$y)',
          style: TextStyle(fontSize: 12, color: type.textColor),
        ),
      ),

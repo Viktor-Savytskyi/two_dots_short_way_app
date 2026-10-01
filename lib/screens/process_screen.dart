@@ -76,7 +76,7 @@ void _onItemPressed({required PathTask task})  {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                child: const Text('Start counting process'),
+                child: const Text('Send results to server'),
               )
           )
         ],
