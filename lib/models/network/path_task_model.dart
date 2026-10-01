@@ -23,9 +23,24 @@ class PathTask {
     return symbol == 'X' ? .blocked : .empty;
   }
 
+  bool _isInsideField(GridPoint point) {
+    return (
+        point.x < size
+        && point.y < size
+        && point.x >= 0
+        && point.y >= 0
+    );
+  }
+
+  bool isAvailable(GridPoint point) {
+    if (!_isInsideField(point)) return false;
+    final cellType = typeOfCell(x: point.x, y: point.y);
+    return cellType != .blocked;
+  }
+
   factory PathTask.fromJson(Map<String, dynamic> json) {
     return PathTask(
-        id: json['id'] as String,
+      id: json['id'] as String,
       field: List<String>.from(json['field'] as List),
       start: GridPoint.fromJson(json['start'] as Map<String, dynamic>),
       end: GridPoint.fromJson(json['end'] as Map<String, dynamic>),
