@@ -15,18 +15,21 @@ final int y;
 final CellType type;
 
 @override
-  Widget build(BuildContext context) {
- return Container(
-   decoration: BoxDecoration(
-     color: type.backgroundColor,
-     border: Border.all(color: Colors.black, width: 1)
-   ),
-     child: Center(
-       child: Text(
-         '($x,$y)',
-         style: TextStyle(fontSize: 14, color: type.textColor),
-       ),
-     ),
- );
-  }
+Widget build(BuildContext context) {
+  return Container(
+    decoration: BoxDecoration(
+      color: type.backgroundColor,
+      border: Border.all(color: Colors.black, width: 1),
+    ),
+    child: Center(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          '($x,$y)',
+          style: TextStyle(fontSize: 14, color: type.textColor),
+        ),
+      ),
+    ),
+  );
+}
 }
