@@ -65,16 +65,17 @@ class _ProcessScreenState extends State<ProcessScreen> {
   }
 
   Future<void> _onContinuePressed()  async {
-
     setState(() => _isLoading = true);
-
     try {
-      final results = await _apiService.sendResults(widget.url, _results);
-      for (var answer in results) {
-        print('answer: ${answer.correct}');
-      }
+      final checks = await _apiService.sendResults(widget.url, _results);
       if (!mounted) return;
-      _navigateToResultsScreen(tasks: widget.tasks, results: _results);
+
+      final correctById = <String, bool>{};
+      for (final check in checks) {
+        correctById[check.id] = check.correct;
+      }
+
+      _navigateToResultsScreen(correctById: correctById);
     } catch (error) {
       if (!mounted) return;
       showAlert(
@@ -87,11 +88,14 @@ class _ProcessScreenState extends State<ProcessScreen> {
     }
   }
 
-  void _navigateToResultsScreen({required List<PathTask> tasks, required List<PathResult> results})  {
+  void _navigateToResultsScreen({required Map<String, bool> correctById}) {
     Navigator.of(context).push(
-        MaterialPageRoute(
-            builder: (context) => ResultsScreen(tasks: widget.tasks, results: _results)
-        )
+      MaterialPageRoute(
+        builder: (context) => ResultsScreen(
+          results: _results,
+          correctById: correctById,
+        ),
+      ),
     );
   }
 
@@ -99,50 +103,59 @@ class _ProcessScreenState extends State<ProcessScreen> {
   Widget build(BuildContext context) {
     return AppScaffold(
         title: 'Process screen',
+        isLoading:  _isLoading,
         body:
         Stack(
+            fit: .expand,
             children: [
               Column(
-              children: [
-                const Spacer(),
-                if (_isFinished)
-                  const Text(
-                    'All calculations has finished, you can send your results to server',
-                    textAlign: TextAlign.center,
-                  ),
-                const SizedBox(height: 16),
-                Text(
-                  '${(_progress * 100).round()}%',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: CircularProgressIndicator(value: _progress, strokeWidth: 6, color: Colors.blue.shade900,),
-                ),
-                const Spacer(),
-                if (_isFinished)
+                children: [
+                  const Spacer(),
                   SizedBox(
-                    width: double.infinity,
                     height: 48,
-                    child: FilledButton(
-                      onPressed: _isLoading ? null : _onContinuePressed,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.black,
-                        side: BorderSide(color: Colors.blue.shade600, width: 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: const Text('Send results to server'),
+                    child: Text(
+                      _isFinished
+                          ? 'All calculations has finished, you can send your results to server'
+                          : 'Calculating shortest paths, please wait...',
+                      textAlign: TextAlign.center,
                     ),
                   ),
-              ],
-            ),
-              if (_isLoading)
-                const Center(child: CircularProgressIndicator()),
+                  const SizedBox(height: 16),
+                  Text(
+                    '${(_progress * 100).round()}%',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator(value: _progress, strokeWidth: 6, color: Colors.blue.shade900,),
+                  ),
+                  const Spacer(),
+                  Visibility(
+                      visible: _isFinished,
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: FilledButton(
+                          onPressed: _isLoading ? null : _onContinuePressed,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.black,
+                            side: BorderSide(color: Colors.blue.shade600, width: 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          child: const Text('Send results to server'),
+                        ),
+                      )
+                  )
+                ],
+              ),
             ]
         )
     );

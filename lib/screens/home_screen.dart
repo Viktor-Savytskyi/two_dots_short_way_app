@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final input = _urlController.text.trim();
 
     if (!isValidUrl(input)) {
-      showAlert(title: 'Invalid URL', message: 'Please enter valid url. example https://example.com', context: context);
+      showAlert(title: 'Invalid URL', message: 'Please enter a valid URL, e.g. https://example.com', context: context);
       return;
     }
 
@@ -62,51 +62,46 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-        title: 'Home screen',
-        body: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: .start,
-              children: [
-                Text('Set valid API base URL in order to continue'),
-                SizedBox(height: 20),
-                Row(
-                  children: [
-                    const Icon(Icons.swap_horiz, size: 20, color: Colors.grey),
-                    SizedBox(width: 25),
-                    Expanded(child: TextField(
-                      controller: _urlController,
-                      keyboardType: .url,
-                      autocorrect:  false,
-                      decoration: const InputDecoration(
-                          hintText: 'https://',
-                          border: UnderlineInputBorder()
-                      ),
-                    ))
-                  ],
+      title: 'Home screen',
+      isLoading:  _isLoading,
+      body:Column(
+        crossAxisAlignment: .start,
+        children: [
+          Text('Set valid API base URL in order to continue'),
+          SizedBox(height: 20),
+          Row(
+            children: [
+              const Icon(Icons.swap_horiz, size: 20, color: Colors.grey),
+              SizedBox(width: 25),
+              Expanded(child: TextField(
+                controller: _urlController,
+                keyboardType: .url,
+                autocorrect:  false,
+                decoration: const InputDecoration(
+                    hintText: 'https://',
+                    border: UnderlineInputBorder()
                 ),
-                const Spacer(),
-                SizedBox(
-                    width: .infinity,
-                    height: 48,
-                    child: FilledButton(onPressed:_isLoading ? null :  _onContinuePressed,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.black,
-                        side: BorderSide(color: Colors.blue.shade900, width: 1),
-                        shape:  RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: const Text('Start counting process'),
-                    )
-                )
-              ],
-            ),
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator()),
-          ],
-        )
+              ))
+            ],
+          ),
+          const Spacer(),
+          SizedBox(
+              width: .infinity,
+              height: 48,
+              child: FilledButton(onPressed:_isLoading ? null :  _onContinuePressed,
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.black,
+                  side: BorderSide(color: Colors.blue.shade900, width: 1),
+                  shape:  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: const Text('Start counting process'),
+              )
+          )
+        ],
+      ),
     );
   }
 }

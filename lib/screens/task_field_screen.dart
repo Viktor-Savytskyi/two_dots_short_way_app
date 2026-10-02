@@ -4,6 +4,7 @@ import 'package:two_dots_short_way_app/widgets/app_scaffold.dart';
 import 'package:two_dots_short_way_app/widgets/grid_cell.dart';
 import 'package:two_dots_short_way_app/models/network/grid_point_model.dart';
 import 'dart:math';
+import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 class TaskFieldScreen extends StatefulWidget {
   const TaskFieldScreen({
@@ -39,42 +40,44 @@ class _TaskFieldScreenState extends State<TaskFieldScreen> {
                 return SizedBox(
                   width: constraints.maxWidth,
                   height: min(gridSide, constraints.maxHeight),
-                  child: InteractiveViewer(
-                    constrained: false,
-                    minScale: 0.1,
-                    maxScale: 4,
-                    child: SizedBox(
-                      width: gridSide,
-                      height: gridSide,
-                      child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: size,
-                        ),
-                        itemCount: size * size,
-                        itemBuilder: (context, index) {
-                          final x = index % size;
-                          final y = index ~/ size;
-                          final baseType = widget.result.task.typeOfCell(x: x, y: y);
-                          final isOnPath = pathPoints.contains(GridPoint(x: x, y: y));
-                          return GridCell(
-                            x: x,
-                            y: y,
-                            type: baseType == .empty && isOnPath ? .path : baseType,
-                          );
-                        },
-                      ),
+                  child: TableView.builder(
+                    columnCount: size,
+                    rowCount: size,
+                    diagonalDragBehavior: DiagonalDragBehavior.free,
+                    columnBuilder: (index) => TableSpan(
+                      extent: FixedTableSpanExtent(cellSize),
                     ),
+                    rowBuilder: (index) => TableSpan(
+                      extent: FixedTableSpanExtent(cellSize),
+                    ),
+                    cellBuilder: (context, vicinity) {
+                      final x = vicinity.column;
+                      final y = vicinity.row;
+                      final baseType = widget.result.task.typeOfCell(x: x, y: y);
+                      final isOnPath = pathPoints.contains(GridPoint(x: x, y: y));
+                      return TableViewCell(
+                        child: GridCell(
+                          x: x,
+                          y: y,
+                          type: baseType == .empty && isOnPath ? .path : baseType,
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                );                                                                                                    },
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            widget.result.getPath() ?? 'No path found',
-            style: TextStyle(fontSize: 14, fontWeight: .w400),
-            textAlign: TextAlign.center,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 80),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                widget.result.getPath() ?? 'No path found',
+                style: TextStyle(fontSize: 14, fontWeight: .w400),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
         ],
       ),
