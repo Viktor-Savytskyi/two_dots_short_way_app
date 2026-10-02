@@ -8,6 +8,7 @@ class GridPoint extends Equatable {
 
   final int x;
   final int y;
+  Map<String, dynamic> toJson() => {'x': x, 'y': y};
 
   @override
   List<Object> get props => [x, y];

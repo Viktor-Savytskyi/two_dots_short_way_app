@@ -1,86 +1,150 @@
 import 'package:flutter/material.dart';
-import 'package:two_dots_short_way_app/screens/task_field_screen.dart';
+import 'package:flutter/foundation.dart';
+import 'package:two_dots_short_way_app/screens/results_screen.dart';
 import 'package:two_dots_short_way_app/services/api_service.dart';
+import 'package:two_dots_short_way_app/services/path_finder.dart';
 import 'package:two_dots_short_way_app/widgets/app_scaffold.dart';
 import 'package:two_dots_short_way_app/models/network/path_task_model.dart';
+import 'package:two_dots_short_way_app/models/internal/path_result.dart';
+import 'package:two_dots_short_way_app/models/network/grid_point_model.dart';
+
+import '../utils/show_alert.dart';
+
+
+List<GridPoint>? _solveTask(PathTask task) {
+  return const PathFinder().findPath(task: task);
+}
 
 class ProcessScreen extends StatefulWidget {
   const ProcessScreen({
     super.key,
-    required this._tasks,
+    required this.tasks,
     required this.url
   });
 
-  final  List<PathTask> _tasks;
-   final Uri url;
+  final  List<PathTask> tasks;
+  final Uri url;
 
   @override
   State<ProcessScreen> createState() => _ProcessScreenState();
 }
 
 class _ProcessScreenState extends State<ProcessScreen> {
-
   final _apiService = ApiService();
+  final List<PathResult> _results = [];
   bool _isLoading = false;
+  double _progress = 0;
+  bool get _isFinished => _results.length == widget.tasks.length;
 
   @override
   void initState() {
     super.initState();
-    // _taskFeature = ApiService().fetchTasks(widget.apiUri);
-}
+    _calculate();
+  }
 
-void _onContinuePressed()  {
+  Future<void> _calculate() async {
+    final tasks = widget.tasks;
+    var doneWork = 0;
+    var totalWork = 0;
 
-}
+    for (final task in tasks) {
+      totalWork += task.size * task.size;
+    }
 
-void _onItemPressed({required PathTask task})  {
-  Navigator.of(context).push(
-      MaterialPageRoute(
-          builder: (context) => TaskFieldScreen(task: task,)
-      )
-  );
-}
+    for (final task in tasks) {
+      final steps = await compute(_solveTask, task);
+      if (!mounted) return;
+
+      doneWork = doneWork + task.size * task.size;
+
+      setState(() {
+        _results.add(PathResult(task: task, steps: steps));
+        _progress = doneWork / totalWork;
+      });
+    }
+  }
+
+  Future<void> _onContinuePressed()  async {
+
+    setState(() => _isLoading = true);
+
+    try {
+      final results = await _apiService.sendResults(widget.url, _results);
+      for (var answer in results) {
+        print('answer: ${answer.correct}');
+      }
+      if (!mounted) return;
+      _navigateToResultsScreen(tasks: widget.tasks, results: _results);
+    } catch (error) {
+      if (!mounted) return;
+      showAlert(
+          title: 'Error',
+          message: 'Request failed $error',
+          context: context
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _navigateToResultsScreen({required List<PathTask> tasks, required List<PathResult> results})  {
+    Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (context) => ResultsScreen(tasks: widget.tasks, results: _results)
+        )
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: 'Process screen',
-      body:  Column(
-        children: [
-          Text('${widget.url}'),
-          SizedBox(height: 40),
-          Expanded(child: ListView.separated(
-            itemCount: widget._tasks.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemBuilder: (context, index)  {
-             final task = widget._tasks[index];
-             return ListTile(
-               tileColor: Colors.amber,
-               title: Text(task.id),
-               trailing: const Icon(Icons.chevron_right),
-               onTap: () => _onItemPressed(task: task),
-             );
-            }
-            )
-          ),
-          SizedBox(height: 40),
-          SizedBox(
-              width: .infinity,
-              height: 48,
-              child: FilledButton(onPressed:_isLoading ? null :  _onContinuePressed,
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.black,
-                  side: BorderSide(color: Colors.blue.shade900, width: 1),
-                  shape:  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+        title: 'Process screen',
+        body:
+        Stack(
+            children: [
+              Column(
+              children: [
+                const Spacer(),
+                if (_isFinished)
+                  const Text(
+                    'All calculations has finished, you can send your results to server',
+                    textAlign: TextAlign.center,
                   ),
+                const SizedBox(height: 16),
+                Text(
+                  '${(_progress * 100).round()}%',
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                child: const Text('Send results to server'),
-              )
-          )
-        ],
-      ) ,
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: CircularProgressIndicator(value: _progress, strokeWidth: 6, color: Colors.blue.shade900,),
+                ),
+                const Spacer(),
+                if (_isFinished)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: FilledButton(
+                      onPressed: _isLoading ? null : _onContinuePressed,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.black,
+                        side: BorderSide(color: Colors.blue.shade600, width: 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      child: const Text('Send results to server'),
+                    ),
+                  ),
+              ],
+            ),
+              if (_isLoading)
+                const Center(child: CircularProgressIndicator()),
+            ]
+        )
     );
   }
 }

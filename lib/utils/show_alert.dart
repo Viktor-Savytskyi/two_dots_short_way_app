@@ -1,0 +1,13 @@
+import 'package:flutter/material.dart';
+
+void showAlert({required String title, required String message, required BuildContext context}) {
+  showDialog(context: context, builder: (context) => AlertDialog(
+    title: Text(title),
+    content: Text(message),
+    actions: [
+      TextButton(onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'))
+    ],
+  )
+  );
+}

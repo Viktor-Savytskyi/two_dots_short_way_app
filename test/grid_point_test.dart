@@ -21,11 +21,9 @@ void main() {
     GridPoint point = GridPoint(x: 1, y: 1);
     List<GridPoint> neighbors = point.neighbors();
     print('start point x: ${point.x} ,y: ${point.y} ');
-    for (var neighbor in neighbors) {
-      print(neighbor);
-    }
     expect(neighbors.length == 8, isTrue);
   });
+
 
   test('is available point', () {
     final field = [".X.", ".X.", "..."];

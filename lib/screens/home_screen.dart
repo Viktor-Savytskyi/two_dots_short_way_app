@@ -3,6 +3,7 @@ import 'package:two_dots_short_way_app/models/network/path_task_model.dart';
 import 'package:two_dots_short_way_app/services/api_service.dart';
 import 'package:two_dots_short_way_app/utils/url_validator.dart';
 import 'package:two_dots_short_way_app/widgets/app_scaffold.dart';
+import '../utils/show_alert.dart';
 import 'process_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final input = _urlController.text.trim();
 
     if (!isValidUrl(input)) {
-      _showAlert(title: 'Invalid URL', message: 'Please enter valid url. example https://example.com');
+      showAlert(title: 'Invalid URL', message: 'Please enter valid url. example https://example.com', context: context);
       return;
     }
 
@@ -45,36 +46,17 @@ class _HomeScreenState extends State<HomeScreen> {
       final apiUri = Uri.parse(input);
       final tasks = await _apiService.fetchTasks(apiUri);
       if (!mounted) return;
-      for (var item in tasks)  {
-        print('===== Task id: ${item.id}');
-        print('task field: ${item.field}');
-        print('task start: x == ${item.start.x}, y == ${item.start.y}');
-        print('task end: x == ${item.end.x}, y == ${item.end.y}');
-        print('===== ');
-      }
-
       _openDetails(tasks: tasks, url: apiUri);
     } catch (error) {
       if (!mounted) return;
-      _showAlert(
+      showAlert(
           title: 'Error',
-          message: 'Request failed $error'
+          message: 'Request failed $error',
+          context: context
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _showAlert({required String title, required String message}) {
-    showDialog(context: context, builder: (context) => AlertDialog(
-      title: Text(title),
-      content: Text(message),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'))
-      ],
-    )
-    );
   }
 
   @override

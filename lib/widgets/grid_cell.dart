@@ -19,12 +19,12 @@ final CellType type;
  return Container(
    decoration: BoxDecoration(
      color: type.backgroundColor,
-     border: Border.all(color: Colors.black, width: 0.5)
+     border: Border.all(color: Colors.black, width: 1)
    ),
      child: Center(
        child: Text(
          '($x,$y)',
-         style: TextStyle(fontSize: 12, color: type.textColor),
+         style: TextStyle(fontSize: 14, color: type.textColor),
        ),
      ),
  );

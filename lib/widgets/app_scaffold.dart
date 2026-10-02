@@ -5,17 +5,19 @@ class AppScaffold extends StatelessWidget {
     super.key,
     required this.title,
     required this.body,
+    this.padding = const EdgeInsets.all(20),
   });
 
   final String title;
   final Widget body;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:  AppBar(title: Text(title)),
       body: SafeArea(child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: padding,
           child: body
       )
       ),

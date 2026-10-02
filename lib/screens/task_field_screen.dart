@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:two_dots_short_way_app/models/network/path_task_model.dart';
+import 'package:two_dots_short_way_app/models/internal/path_result.dart';
 import 'package:two_dots_short_way_app/widgets/app_scaffold.dart';
 import 'package:two_dots_short_way_app/widgets/grid_cell.dart';
+import 'package:two_dots_short_way_app/models/network/grid_point_model.dart';
 
 class TaskFieldScreen extends StatefulWidget {
   const TaskFieldScreen({
   super.key,
-  required this.task,
+  required this.result,
 });
 
-final PathTask task;
+final PathResult result;
 
   @override
   State<TaskFieldScreen> createState() => _TaskFieldScreenState();
@@ -18,10 +19,12 @@ final PathTask task;
 class _TaskFieldScreenState extends State<TaskFieldScreen> {
   @override
   Widget build(BuildContext context) {
-    final size = widget.task.size;
+    final size = widget.result.task.size;
+    final pathPoints = widget.result.steps?.toSet() ?? <GridPoint>{};
 
     return AppScaffold(
       title: 'Preview screen',
+      padding: .zero,
       body: Column(
         children: [
           AspectRatio(
@@ -35,17 +38,22 @@ class _TaskFieldScreenState extends State<TaskFieldScreen> {
               itemBuilder: (context, index) {
                 final x = index % size;
                 final y = index ~/ size;
+                final baseType = widget.result.task.typeOfCell(x: x, y: y);
+                final isOnPath = pathPoints.contains(GridPoint(x: x, y: y));
                 return GridCell(
                   x: x,
                   y: y,
-                  type: widget.task.typeOfCell(x: x, y: y),
+                  type: baseType == .empty && isOnPath ? .path : baseType,
                 );
               },
             ),
           ),
-          const SizedBox(height: 16),
-          Text('start: (${widget.task.start.x},${widget.task.start.y})  '
-              'end: (${widget.task.end.x},${widget.task.end.y})'),
+          const SizedBox(height: 2),
+          Text(
+            widget.result.getPath() ?? 'No path found',
+            style:  TextStyle(fontSize: 14, fontWeight: .w400),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
